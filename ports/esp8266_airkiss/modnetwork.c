@@ -544,7 +544,7 @@ STATIC void airkiss_finish(void) {
 	//uint8 buffer[256];
 	airkiss_result_t result;
 	err = airkiss_get_result(&akcontex, &result);
-	mp_call_function_2(airkiss_cb, mp_obj_new_bool(err), mp_obj_new_dict(result)); //mp_obj_new_dict need test
+        mp_call_function_2(airkiss_cb, mp_obj_new_bool(err), mp_obj_new_dict((size_t)&result)); //mp_obj_new_dict need test
 	/*if (err == 0) {
 		printf("airkiss_get_result() ok!");
 		//os_sprintf(buffer, "ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
