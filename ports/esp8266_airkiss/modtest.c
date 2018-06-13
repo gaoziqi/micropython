@@ -4,25 +4,29 @@
  *  Created on: 2018Äê6ÔÂ19ÈÕ
  *      Author: Administrator
  */
+#include <stdio.h>
 #include "py/runtime.h"
 
+
+mp_obj_t test_cb;
+
 STATIC void cb_main(){
-	mp_call_function_0(MP_STATE_PORT(test_cb_obj));
+	mp_call_function_0(test_cb);
 	printf("cb_main finish");
 }
 
 STATIC mp_obj_t testcb(mp_obj_t cb) {
-	MP_STATE_PORT(test_cb_obj) = cb;
+	test_cb = cb;
 	cb_main();
 	return mp_const_true;
 }
 
-MP_DEFINE_CONST_FUN_OBJ_1(test_testcb_obj, testcb);
+MP_DEFINE_CONST_FUN_OBJ_1(testcb_obj, testcb);
 
 
 STATIC const mp_rom_map_elem_t test_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_test) },
-    { MP_ROM_QSTR(MP_QSTR_testcb), MP_ROM_PTR(&test_testcb_obj) },
+    { MP_ROM_QSTR(MP_QSTR_testcb), MP_ROM_PTR(&testcb_obj) },
 
 };
 
