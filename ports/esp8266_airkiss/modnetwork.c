@@ -544,11 +544,11 @@ STATIC void airkiss_finish(void) {
 	//uint8 buffer[256];
 	airkiss_result_t result;
 	err = airkiss_get_result(&akcontex, &result);
-        mp_call_function_2(airkiss_cb, mp_obj_new_bool(err), mp_obj_new_dict((size_t)&result)); //mp_obj_new_dict need test
+	printf("ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
+	mp_call_function_2(airkiss_cb, mp_obj_new_bool(err), mp_obj_new_dict((size_t)&result)); //mp_obj_new_dict need test
 	/*if (err == 0) {
 		printf("airkiss_get_result() ok!");
 		//os_sprintf(buffer, "ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
-		printf("ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
 		//uart0_sendStr(buffer);
 	}
 	else {
@@ -565,6 +565,7 @@ STATIC void wifi_promiscuous_rx(uint8 *buf, uint16 len) {
 	//将网络帧传入airkiss库进行处理
 	ret = airkiss_recv(&akcontex, buf, len);
 	//判断返回值，确定是否锁定信道或者读取结果
+	//printf("%d", ret);
 	if ( ret == AIRKISS_STATUS_CHANNEL_LOCKED)
 		os_timer_disarm(&time_serv);
 	else if ( ret == AIRKISS_STATUS_COMPLETE ) {
@@ -580,18 +581,18 @@ STATIC mp_obj_t start_airkiss(mp_obj_t cb) {
 	int8_t ret;
 	airkiss_cb = cb;
 	//如果有开启AES功能，定义AES密码，注意与手机端的密码一致 const char* key = "Wechatiothardwav";
-	//uart0_sendStr("Start airkiss!\r\n");
+	printf("Start airkiss!\r\n");
 	//调用接口初始化AirKiss流程，每次调用该接口，流程重新开始，akconf需要预先设置好参数
 	ret = airkiss_init(&akcontex, &akconf); //判断返回值是否正确
 	if (ret < 0) {
-		//uart0_sendStr("Airkiss init failed!\r\n"); return;
+		printf("Airkiss init failed!\r\n");
 		return mp_const_false;
 	}
 	#if AIRKISS_ENABLE_CRYPT
 	//如果使用AES加密功能需要设置好AES密钥，注意包含正确的库文件，头文件中的宏要打开
 	//airkiss_set_key(&akcontex, key, strlen(key));
 	#endif
-	//uart0_sendStr("Finish init airkiss!\r\n");
+	printf("Finish init airkiss!\r\n");
 	//以下与硬件平台相关，设置模块为STATION模式并开启混杂模式，启动定时器用于定时切换信道
 	wifi_station_disconnect();
 	wifi_set_opmode(STATION_MODE);
