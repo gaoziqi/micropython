@@ -84,6 +84,7 @@ SRC_C = \
 	modnetwork.c \
 	modutime.c \
 	moduos.c \
+	modtest.c \
 	ets_alt_task.c \
 	fatfs_port.c \
 	posix_helpers.c \
