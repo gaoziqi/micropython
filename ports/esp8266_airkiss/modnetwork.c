@@ -507,6 +507,7 @@ uint8_t cur_channel = 1;
 //用于切换信道的定时器，平台相关
 os_timer_t time_serv;
 airkiss_context_t akcontex;
+mp_obj_t airkiss_cb;
 //AirKiss过程中需要的RAM资源，完成AirKiss后可以供其他代码使用 airkiss_context_t akcontex;
 //另一种更节省资源的使用方法，通过malloc动态申请RAM资源，完成后利用free释放，需要平台支持
 //示例：
@@ -543,7 +544,8 @@ STATIC void airkiss_finish(void) {
 	//uint8 buffer[256];
 	airkiss_result_t result;
 	err = airkiss_get_result(&akcontex, &result);
-	if (err == 0) {
+	mp_call_function_2(airkiss_cb, mp_obj_new_bool(err), mp_obj_new_dict(result)); //mp_obj_new_dict need test
+	/*if (err == 0) {
 		printf("airkiss_get_result() ok!");
 		//os_sprintf(buffer, "ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
 		printf("ssid = \"%s\", pwd = \"%s\", ssid_length = %d, pwd_length = %d, random = 0x%02x\r\n", result.ssid, result.pwd, result.ssid_length, result.pwd_length, result.random);
@@ -552,7 +554,7 @@ STATIC void airkiss_finish(void) {
 	else {
 		printf("airkiss_get_result() failed !\r\n");
 		//uart0_sendStr("airkiss_get_result() failed !\r\n");
-	}
+	}*/
 }
 
 /*
@@ -574,8 +576,9 @@ STATIC void wifi_promiscuous_rx(uint8 *buf, uint16 len) {
 /*
 *	初始化并开始进入AirKiss流程，平台相关
 */
-STATIC mp_obj_t start_airkiss(void) {
+STATIC mp_obj_t start_airkiss(mp_obj_t cb) {
 	int8_t ret;
+	airkiss_cb = cb;
 	//如果有开启AES功能，定义AES密码，注意与手机端的密码一致 const char* key = "Wechatiothardwav";
 	//uart0_sendStr("Start airkiss!\r\n");
 	//调用接口初始化AirKiss流程，每次调用该接口，流程重新开始，akconf需要预先设置好参数
@@ -600,7 +603,7 @@ STATIC mp_obj_t start_airkiss(void) {
 	return mp_const_true;
 }
 
-MP_DEFINE_CONST_FUN_OBJ_0(start_airkiss_obj, start_airkiss);
+MP_DEFINE_CONST_FUN_OBJ_1(start_airkiss_obj, start_airkiss);
 
 
 
